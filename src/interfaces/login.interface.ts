@@ -135,3 +135,10 @@ export interface FeatureProperties {
 export enum FeatureType {
   Feature = 'Feature',
 }
+
+export interface DepartmentWithCovid {
+  covidData: DataGov | null;
+  type: FeatureType;
+  properties: FeatureProperties;
+  geometry: Geometry;
+}

@@ -12,8 +12,14 @@ const routes: RouteRecordRaw[] = [
         component: () => import('src/components/MainLayout/Login/LoginPage.vue'),
         meta: { requiresAuth: false, roles: [UserRole.ANONYMOUS] },
       },
+      {
+        path: 'Dashboard',
+        component: () => import('src/components/MainLayout/Dashboard/DashboardPage.vue'),
+        meta: { requiresAuth: true, roles: [UserRole.STANDARD_USER] },
+      },
     ],
   },
+  
 
   // Route to display 503 error
   {

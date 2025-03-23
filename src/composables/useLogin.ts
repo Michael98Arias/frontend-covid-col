@@ -4,9 +4,16 @@ import { useAuthStore } from '../stores/data-store';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import LoginService from '../services/login.service';
-import { UserLogin, DataGov, DataCountry } from '../interfaces/login.interface';
+import {
+  UserLogin,
+  DataGov,
+  DataCountry,
+  DepartmentWithCovid,
+  Feature,
+} from '../interfaces/login.interface';
 import { UserRole } from 'src/enums/enums/role.enum';
 import { isDataCountry, isDataGov } from 'src/utils/typeGuards';
+import { normalizeDepartment } from 'src/utils/helpers';
 
 export function useLogin() {
   const router = useRouter();
@@ -25,6 +32,7 @@ export function useLogin() {
   const loginDataGov = ref<DataGov | null>(null);
   const loginDataCountry = ref<DataCountry | null>(null);
   const error = ref<string | null>(null);
+  const mergedData = ref<DepartmentWithCovid[]>([]);
 
   const isFormValidLogin = computed(() => {
     return !!formLogin.username && !!formLogin.password;
@@ -34,7 +42,7 @@ export function useLogin() {
     showPassword.value = !showPassword.value;
   };
   /**
-   *  Obtener los datos de login desde ambas APIs
+   * Obtener los datos de login desde ambas APIs
    */
   async function fetchLoginData() {
     error.value = null;
@@ -51,15 +59,56 @@ export function useLogin() {
         error.value = t('globalMessages.invalidGovData');
       }
       if (isDataCountry(countryResponse.features)) {
-        loginDataCountry.value = countryResponse.features;
+        loginDataCountry.value = countryResponse;
       } else {
         error.value = t('globalMessages.invalidCountryData');
       }
+      mergeDataWithCovid();
     } catch (err) {
       error.value = t('globalMessages.errorFetchingData');
     } finally {
       $q.loading.hide();
     }
+  }
+
+  /**
+   * Combina los datos de los departamentos con los datos de COVID
+   */
+  function mergeDataWithCovid() {
+    if (!loginDataGov.value || !loginDataCountry.value) {
+      return;
+    }
+
+    const govData = Array.isArray(loginDataGov.value)
+      ? loginDataGov.value
+      : [loginDataGov.value];
+
+    if (!Array.isArray(loginDataCountry.value.features)) {
+      return;
+    }
+    mergedData.value = loginDataCountry.value.features.map(
+      (department: Feature) => {
+        const { DPTO, NOMBRE_DPT } = department.properties;
+        const normalizedDept = normalizeDepartment(DPTO, NOMBRE_DPT);
+
+        const matchingCovid = govData.find((covid: DataGov) => {
+          const normalizedCovidDept = normalizeDepartment(
+            covid.departamento,
+            covid.departamento_nom
+          );
+          return (
+            normalizedDept.normalizedCode ===
+              normalizedCovidDept.normalizedCode &&
+            normalizedDept.normalizedName === normalizedCovidDept.normalizedName
+          );
+        });
+
+        return {
+          ...department,
+          covidData: matchingCovid || null,
+        };
+      }
+    );
   }
 
   /**
@@ -73,7 +122,6 @@ export function useLogin() {
       });
       return;
     }
-    console.log('LOGIN');
     $q.loading.show({ message: t('globalMessages.wait') });
 
     try {
@@ -110,5 +158,6 @@ export function useLogin() {
     loginDataCountry,
     error,
     togglePasswordVisibility,
+    mergedData,
   };
 }

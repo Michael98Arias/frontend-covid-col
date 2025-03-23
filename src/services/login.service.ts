@@ -20,10 +20,8 @@ class LoginService {
         'country',
         '/john-guerra/43c7656821069d00dcbc/raw/3aadedf47badbdac823b00dbe259f6bc6d9e1899/colombia.geo.json'
       );
-      console.log('✅ Respuesta completa en getLoginCountry:', response);
       return response;
     } catch (error) {
-      console.error('❌ Error en getLoginCountry:', error);
       throw error;
     }
   }

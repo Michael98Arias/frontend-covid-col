@@ -35,6 +35,13 @@ Technologies Used
     Pinia: For state management of the application.
     Vite: As a development tool and bundler.
 
+## Google Maps API Key
+This is an environment variable used to securely store your Google Maps API Key.
+The variable is defined in the .env file, which is used to configure your project without hardcoding sensitive information.
+Place your Google Maps API Key in the following variable to use it for making calls to the Google Maps API.
+
+    VITE_GOOGLE_MAP_API_KEY=your_api_key_here
+
 ## Install the dependencies
 
 ```bash

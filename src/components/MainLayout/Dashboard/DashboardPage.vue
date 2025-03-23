@@ -12,10 +12,9 @@ const map = ref(null);
 
 const initMap = () => {
     const loader = new Loader({
-        apiKey: 'AIzaSyBxNStypKrE9J3G2X3qNvSEzqfgN0EZyHg',
+        apiKey: import.meta.env.VITE_GOOGLE_MAP_API_KEY,
         version: 'weekly',
     });
-
     loader.load().then(() => {
         map.value = new google.maps.Map(document.getElementById('map'), {
             center: { lat: 4.5709, lng: -74.2973 },

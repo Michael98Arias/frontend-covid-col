@@ -16,6 +16,12 @@ export default {
     confirm: 'Are you sure?',
     enable: 'Will be enabled: ',
     delete: 'Will be eliminated: ',
+    invalidGovData: 'Invalid government data.',
+    invalidCountryData: 'Invalid country data.',
+    errorFetchingData: 'Error fetching data.',
+    invalidLogin: 'Invalid login credentials.',
+    successLogin: 'Login successful.',
+    errorLogin: 'Error logging in.',
   },
   layout: {
     mainLayout: {
@@ -44,6 +50,17 @@ export default {
           wait: 'Please wait...',
           successLogin: 'Login successful',
           errorLogin: 'Login failed',
+        },
+      },
+      dashboard: {
+        departmentInfo: {
+          title: 'Department Information',
+          departmentLabel: 'Department:',
+          closeButton: 'Close',
+        },
+        covidTable: {
+          key: 'Key',
+          value: 'Value',
         },
       },
     },

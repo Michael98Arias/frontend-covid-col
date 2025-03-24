@@ -1,4 +1,4 @@
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/data-store';
 import { useQuasar } from 'quasar';
@@ -33,7 +33,7 @@ export function useLogin() {
   const loginDataCountry = ref<DataCountry | null>(null);
   const error = ref<string | null>(null);
   const mergedData = ref<DepartmentWithCovid[]>([]);
-
+  const isDataLoaded = ref(false);
   const isFormValidLogin = computed(() => {
     return !!formLogin.username && !!formLogin.password;
   });
@@ -42,9 +42,9 @@ export function useLogin() {
     showPassword.value = !showPassword.value;
   };
   /**
-   * Obtener los datos de login desde ambas APIs
+   * Obtener los datos de login y realizar el merge
    */
-  async function fetchLoginData() {
+  async function fetchAndMergeLoginData() {
     error.value = null;
     $q.loading.show({ message: t('globalMessages.wait') });
 
@@ -64,8 +64,10 @@ export function useLogin() {
         error.value = t('globalMessages.invalidCountryData');
       }
       mergeDataWithCovid();
+      isDataLoaded.value = true;
     } catch (err) {
       error.value = t('globalMessages.errorFetchingData');
+      isDataLoaded.value = true;
     } finally {
       $q.loading.hide();
     }
@@ -133,7 +135,6 @@ export function useLogin() {
       if (!isValid) {
         throw new Error('Credenciales incorrectas');
       }
-      fetchLoginData();
       authStore.authenticate(true, UserRole.STANDARD_USER);
       router.push('/Dashboard');
 
@@ -148,6 +149,13 @@ export function useLogin() {
     }
   }
 
+  onMounted(() => {
+
+    if (!isDataLoaded.value) {
+      fetchAndMergeLoginData();
+    }
+  });
+
   return {
     tab,
     showPassword,
@@ -159,5 +167,6 @@ export function useLogin() {
     error,
     togglePasswordVisibility,
     mergedData,
+    isDataLoaded,
   };
 }
